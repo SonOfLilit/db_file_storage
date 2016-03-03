@@ -1,6 +1,5 @@
 # python
 import base64
-import os
 import sys
 # django
 from django import VERSION as DJ_VERSION
@@ -11,6 +10,7 @@ from django.utils.crypto import get_random_string
 from django.utils.http import urlencode
 
 
+SEPARATOR = '/'
 NAME_FORMAT_HINT = '<app>.<model>/<content_field>/<mimetype_field>/<filename_field>/<filename>'
 
 
@@ -53,7 +53,7 @@ class DatabaseFileStorage(Storage):
     def _get_unique_filename(self, model_cls, filename_field, filename):
         final_name = filename
 
-        if ('.' in filename.rsplit(os.sep, 1)[-1]):
+        if ('.' in filename.rsplit(SEPARATOR, 1)[-1]):
             stem, extension = final_name.rsplit('.', 1)
         else:
             stem, extension = (final_name, '')
@@ -71,7 +71,7 @@ class DatabaseFileStorage(Storage):
 
     def _get_storage_attributes(self, name):
         try:
-            (model_class_path, content_field, filename_field, mimetype_field, filename) = name.split(os.sep)
+            (model_class_path, content_field, filename_field, mimetype_field, filename) = name.split(SEPARATOR)
         except ValueError:
             raise NameException('Wrong name format. Should be {}'.format(NAME_FORMAT_HINT))
         return {
