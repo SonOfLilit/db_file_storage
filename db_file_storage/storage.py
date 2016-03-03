@@ -1,5 +1,6 @@
 # python
 import base64
+import os
 import sys
 # django
 from django import VERSION as DJ_VERSION
@@ -73,7 +74,7 @@ class DatabaseFileStorage(Storage):
         try:
             (model_class_path, content_field, filename_field, mimetype_field, filename) = name.split(SEPARATOR)
         except ValueError:
-            raise NameException('Wrong name format. Should be {}'.format(NAME_FORMAT_HINT))
+            raise NameException(name + ': Wrong name format. Should be {}'.format(NAME_FORMAT_HINT))
         return {
             'model_class_path': model_class_path,
             'content_field': content_field,
@@ -104,6 +105,10 @@ class DatabaseFileStorage(Storage):
         return _file
 
     def _save(self, name, content):
+        if os.sep != SEPARATOR:
+            # django gives us an OS-specific name, but we want something normalized
+            # that could be used from every OS
+            name = name.replace(os.sep, SEPARATOR)
         storage_attrs = self._get_storage_attributes(name)
         model_class_path = storage_attrs['model_class_path']
         content_field = storage_attrs['content_field']
